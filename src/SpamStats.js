@@ -40,7 +40,7 @@
 			urls[ keys[ i ] ].pages = Object.keys( urls[ keys[ i ] ].pages ).length;
 		}
 		keys.sort( function ( a, b ) {
-			return urls[ b ].hits - urls[ a ].hits;
+			return urls[ b ].pages - urls[ a ].pages;
 		} );
 		$table = $( '<tbody></tbody>' )
 			.append(
