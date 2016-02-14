@@ -22,31 +22,43 @@
 		'ss-prompt-text': 'Caso deseje filtrar a lista de registros de SPAM, ' +
 			'digite o texto que deve estar presente nas URLs de interesse. ' +
 			'Deixe em branco para analisar todos os registros.',
-		'ss-processing': 'Verificando quais dos $1 registros anteriores a $2 contém "$3".'
+		'ss-processing': 'Verificando quais dos $1 registros anteriores a $2 contém "$3".',
+		'ss-column-logs': 'Registros',
+		'ss-column-users': 'Usuários',
+		'ss-column-pages': 'Páginas',
+		'ss-column-url': 'URL'
 	} );
 
 	var batchSize = 'max',
 		api,
 		searchStr = prompt( mw.msg( 'ss-prompt-text' ), 'youtu' );
-	function process( freq ) {
-		var keys, $table;
-		keys = Object.keys( freq );
+	function process( urls ) {
+		var keys = Object.keys( urls ),
+			$table, i;
+		for ( i = 0; i < keys.length; i++ ) {
+			urls[ keys[ i ] ].users = Object.keys( urls[ keys[ i ] ].users ).length;
+			urls[ keys[ i ] ].pages = Object.keys( urls[ keys[ i ] ].pages ).length;
+		}
 		keys.sort( function ( a, b ) {
-			return freq[ b ] - freq[ a ];
+			return urls[ b ].hits - urls[ a ].hits;
 		} );
 		$table = $( '<tbody></tbody>' )
 			.append(
 				$( '<tr></tr>' )
 					.append(
-						$( '<th>' ).text( 'Logs' ),
-						$( '<th>' ).text( 'URL' )
+						$( '<th>' ).text( mw.msg( 'ss-column-logs' ) ),
+						$( '<th>' ).text( mw.msg( 'ss-column-users' ) ),
+						$( '<th>' ).text( mw.msg( 'ss-column-pages' ) ),
+						$( '<th>' ).text( mw.msg( 'ss-column-url' ) )
 					)
 			);
 		$.each( keys, function ( i, val ) {
 			$table.append(
 				$( '<tr></tr>' )
 					.append(
-						$( '<td>' ).text( freq[ val ] ),
+						$( '<td>' ).text( urls[ val ].hits ),
+						$( '<td>' ).text( urls[ val ].users ),
+						$( '<td>' ).text( urls[ val ].pages ),
 						$( '<td>' ).text( val )
 					)
 			);
@@ -68,12 +80,10 @@
 			.replace( /(^| )(?:https?:)?\/\//gi, '$1' );
 	}
 	function load() {
-		var freq = {},
+		var urls = {},
 			param = {
-				action: 'query',
-				format: 'json',
 				list: 'logevents',
-				leprop: 'user|timestamp|comment|details|userid|parsedcomment|tags|ids',
+				leprop: 'ids|timestamp|details|userid',
 				letype: 'spamblacklist',
 				lelimit: batchSize,
 				continue: ''
@@ -95,24 +105,30 @@
 							)
 						);
 					$.each( data.query.logevents, function ( id, val ) {
-						var urls = val.params.url.split( ' ' ),
+						var parts = val.params.url.split( ' ' ),
 							url, i;
-						for ( i = 0; i < urls.length; i++ ) {
-							url = urls[ i ];
+						for ( i = 0; i < parts.length; i++ ) {
+							url = parts[ i ];
 							if ( !searchStr || url.indexOf( searchStr ) !== -1 ) {
 								url = normalize( url );
-								if ( freq[ url ] ) {
-									freq[ url ]++;
+								if ( urls[ url ] ) {
+									urls[ url ].hits++;
 								} else {
-									freq[ url ] = 1;
+									urls[ url ] = {
+										hits: 1,
+										users: {},
+										pages: {}
+									};
 								}
+								urls[ url ].users[ val.userid ] = true;
+								urls[ url ].pages[ val.pageid ] = true;
 							}
 						}
 					} );
 					if ( data.continue ) {
 						getLogBatch( data.continue );
 					} else {
-						process( freq );
+						process( urls );
 					}
 				} );
 			};
