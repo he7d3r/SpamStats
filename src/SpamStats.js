@@ -12,12 +12,12 @@
 	mw.messages.set( {
 		'ss-title': 'Estatísticas do registro da lista negra de SPAMS',
 		'ss-description': 'A tabela a seguir mostra o número de "tentativas de ' +
-			'edição" em que cada URL estava presente. Note que o MediaWiki ' +
-			'produz mais de um registro para a "mesma edição" caso o usuário ' +
-			'simplesmente tente salvar a edição sem remover o link (ou se não ' +
-			'remover todas as ocorrências do mesmo). Os números abaixo também ' +
-			'não dizem quantos usuários distintos tentaram inserir um certo ' +
-			'link, nem diz em quantas páginas distintas eles seriam inseridos.',
+			'edição" em que cada URL estava presente, bem como quantos usuários ' +
+			'distintos tentaram inserir um certo link, e em quantas páginas ' +
+			'distintas eles seriam inseridos. Leve em conta que o MediaWiki produz mais ' +
+			'de um registro para a "mesma edição" caso o usuário simplesmente ' +
+			'tente salvar a edição sem remover o link (ou se não remover todas ' +
+			'as ocorrências do mesmo).',
 		'ss-table-caption': 'Registros por URL',
 		'ss-prompt-text': 'Caso deseje filtrar a lista de registros de SPAM, ' +
 			'digite o texto que deve estar presente nas URLs de interesse. ' +
